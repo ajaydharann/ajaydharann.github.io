@@ -145,7 +145,7 @@
 </div>
 
 <script>
-  // Add/edit songs here — the ⏭ button cycles through this list.
+  // Add/edit songs here — the [>] button cycles through this list.
   const playlist = [
     { title: "yung blesh - believe me (kr)", url: "https://www.youtube.com/watch?v=twVMjG2S8Wk" },
     { title: "for you and your denial - yellowcard (eng)", url: "https://www.youtube.com/watch?v=3zRy4RCadL8&list=RD3zRy4RCadL8&start_radio=1" },
@@ -155,7 +155,7 @@
 
   function renderCurrentlyBody() {
     const song = playlist[nowPlayingIndex];
-    return `listening to: <a href="${song.url}" target="_blank" rel="noopener">${song.title}</a> <button type="button" id="ff-btn" class="ff-btn" title="next song" aria-label="next song">⏭</button>
+    return `listening to: <a href="${song.url}" target="_blank" rel="noopener">${song.title}</a> <button type="button" id="ff-btn" class="ff-btn" title="next song" aria-label="next song">[&gt;]</button>
 reading: <a href="https://www.webtoons.com/en/supernatural/flawed-almighty/list?title_no=3577" target="_blank" rel="noopener">flawed almighty - carnby kim // rh song</a>`;
   }
 
