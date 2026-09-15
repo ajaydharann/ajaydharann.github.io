@@ -97,6 +97,23 @@
   }
   .file-body { white-space: pre-wrap; }
   .file-body a { color: var(--link); }
+  .ff-btn {
+    background: none;
+    border: 1px solid var(--line);
+    color: var(--fg);
+    font: inherit;
+    font-size: 12px;
+    line-height: 1;
+    padding: 2px 6px;
+    margin-left: 4px;
+    cursor: pointer;
+    vertical-align: middle;
+    border-radius: 2px;
+  }
+  .ff-btn:hover {
+    border-color: var(--muted);
+    background: rgba(0,0,0,0.06);
+  }
 
   .hint {
     margin-top: 2.5rem;
@@ -128,14 +145,35 @@
 </div>
 
 <script>
-  // Edit this object to change the content behind each file.
+  // Add/edit songs here — the ⏭ button cycles through this list.
+  const playlist = [
+    { title: "yung blesh - believe me (kr)", url: "https://www.youtube.com/watch?v=twVMjG2S8Wk" },
+    { title: "for you and your denial - yellowcard (eng)", url: "https://www.youtube.com/watch?v=3zRy4RCadL8&list=RD3zRy4RCadL8&start_radio=1" },
+    { title: "愛丫愛丫 - wang sulong (cn)", url: "https://www.youtube.com/watch?v=TJqdYS-KRFM" }
+  ];
+  let nowPlayingIndex = 0;
+
+  function renderCurrentlyBody() {
+    const song = playlist[nowPlayingIndex];
+    return `listening to: <a href="${song.url}" target="_blank" rel="noopener">${song.title}</a> <button type="button" id="ff-btn" class="ff-btn" title="next song" aria-label="next song">⏭</button>
+reading: <a href="https://www.webtoons.com/en/supernatural/flawed-almighty/list?title_no=3577" target="_blank" rel="noopener">flawed almighty - carnby kim // rh song</a>`;
+  }
+
+  function attachFFHandler() {
+    const btn = document.getElementById('ff-btn');
+    if (!btn) return;
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      nowPlayingIndex = (nowPlayingIndex + 1) % playlist.length;
+      fileBody.innerHTML = renderCurrentlyBody();
+      attachFFHandler();
+    });
+  }
+
+  // Edit this object to change the content behind each other file.
   // Plain text renders as-is; use <a href="...">link</a> for links.
   const files = {
-    currently: {
-      title: "currently.txt",
-      body: `listening to: <a href="https://www.youtube.com/watch?v=BBcgSItCpRQ&list=RDZEjlls0-4Ag&index=7" target="_blank" rel="noopener">haon, boycold - did it again, traveler (live)</a>
-reading: <a href="https://www.webtoons.com/en/supernatural/flawed-almighty/list?title_no=3577" target="_blank" rel="noopener">flawed almighty - carnby kim // rh song</a>`
-    },
     links: {
       title: "links.txt",
       body: `instagram: <a href="https://www.instagram.com/ajaydharan/" target="_blank" rel="noopener">@ajaydharan</a>
@@ -152,6 +190,15 @@ spotify: <a href="https://open.spotify.com/user/nyqoxmk0wtsxwk6dtxag2ewki?si=3ca
     el.addEventListener('click', (e) => {
       e.preventDefault();
       const key = el.dataset.file;
+
+      if (key === 'currently') {
+        fileTitle.textContent = 'currently.txt';
+        fileBody.innerHTML = renderCurrentlyBody();
+        attachFFHandler();
+        overlay.classList.add('open');
+        return;
+      }
+
       const f = files[key];
       if (!f) return;
       fileTitle.textContent = f.title;
