@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ajay dharan</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --fg: #111111;
+    --muted: #767676;
+    --link: #0645ad;
+    --line: #dcdcdc;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d0d0d;
+      --fg: #eaeaea;
+      --muted: #8c8c8c;
+      --link: #6fa8ff;
+      --line: #2b2b2b;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: ui-monospace, "SF Mono", "Courier New", monospace;
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 3rem 1.25rem;
+  }
+  .wrap {
+    max-width: 620px;
+    margin: 0 auto;
+  }
+  .tree {
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .root {
+    font-weight: bold;
+  }
+  .branch {
+    color: var(--muted);
+  }
+  a.node {
+    color: var(--link);
+    text-decoration: none;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font: inherit;
+    padding: 0;
+  }
+  a.node:hover {
+    text-decoration: underline;
+  }
+
+  /* overlay "text file" viewer */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 4vh 1rem;
+    z-index: 10;
+  }
+  .overlay.open { display: flex; }
+  .file {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    max-width: 560px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 1.5rem;
+  }
+  .file-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  .file-head span { color: var(--muted); }
+  .file-head button {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font: inherit;
+    cursor: pointer;
+  }
+  .file-body { white-space: pre-wrap; }
+  .file-body a { color: var(--link); }
+  .ff-btn {
+    background: none;
+    border: 1px solid var(--line);
+    color: var(--fg);
+    font: inherit;
+    font-size: 12px;
+    line-height: 1;
+    padding: 2px 6px;
+    margin-left: 4px;
+    cursor: pointer;
+    vertical-align: middle;
+    border-radius: 2px;
+  }
+  .ff-btn:hover {
+    border-color: var(--muted);
+    background: rgba(0,0,0,0.06);
+  }
+
+  .hint {
+    margin-top: 2.5rem;
+    color: var(--muted);
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="tree" id="tree">
+<span class="root">ajay dharan</span>
+<span class="branch">├── </span><a class="node" data-file="currently">currently.txt</a>
+<span class="branch">└── </span><a class="node" data-file="links">links.txt</a>
+</div>
+
+<div class="hint">click a .txt to open it</div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="file">
+    <div class="file-head">
+      <span id="file-title">file.txt</span>
+      <button id="file-close">close ✕</button>
+    </div>
+    <div class="file-body" id="file-body"></div>
+  </div>
+</div>
+
+<script>
+  // Add/edit songs here — the [>] button cycles through this list.
+  const playlist = [
+    { title: "yung blesh - believe me (kr)", url: "https://www.youtube.com/watch?v=twVMjG2S8Wk" },
+    { title: "for you and your denial - yellowcard (eng)", url: "https://www.youtube.com/watch?v=3zRy4RCadL8&list=RD3zRy4RCadL8&start_radio=1" },
+    { title: "愛丫愛丫 - wang sulong (cn)", url: "https://www.youtube.com/watch?v=TJqdYS-KRFM" }
+  ];
+  let nowPlayingIndex = 0;
+
+  function renderCurrentlyBody() {
+    const song = playlist[nowPlayingIndex];
+    return `listening to: <a href="${song.url}" target="_blank" rel="noopener">${song.title}</a> <button type="button" id="ff-btn" class="ff-btn" title="next song" aria-label="next song">[&gt;]</button>
+reading: <a href="https://www.webtoons.com/en/supernatural/flawed-almighty/list?title_no=3577" target="_blank" rel="noopener">flawed almighty - carnby kim // rh song</a>`;
+  }
+
+  function attachFFHandler() {
+    const btn = document.getElementById('ff-btn');
+    if (!btn) return;
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      nowPlayingIndex = (nowPlayingIndex + 1) % playlist.length;
+      fileBody.innerHTML = renderCurrentlyBody();
+      attachFFHandler();
+    });
+  }
+
+  // Edit this object to change the content behind each other file.
+  // Plain text renders as-is; use <a href="...">link</a> for links.
+  const files = {
+    links: {
+      title: "links.txt",
+      body: `instagram: <a href="https://www.instagram.com/ajaydharan/" target="_blank" rel="noopener">@ajaydharan</a>
+vsco: <a href="https://vsco.co/ajaydharann/gallery" target="_blank" rel="noopener">@ajay dharan</a>
+spotify: <a href="https://open.spotify.com/user/nyqoxmk0wtsxwk6dtxag2ewki?si=3ca02b0e0d7d4487" target="_blank" rel="noopener">click here 4 spotify</a>`
+    }
+  };
+
+  const overlay = document.getElementById('overlay');
+  const fileTitle = document.getElementById('file-title');
+  const fileBody = document.getElementById('file-body');
+
+  document.querySelectorAll('a.node').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.preventDefault();
+      const key = el.dataset.file;
+
+      if (key === 'currently') {
+        fileTitle.textContent = 'currently.txt';
+        fileBody.innerHTML = renderCurrentlyBody();
+        attachFFHandler();
+        overlay.classList.add('open');
+        return;
+      }
+
+      const f = files[key];
+      if (!f) return;
+      fileTitle.textContent = f.title;
+      fileBody.innerHTML = f.body;
+      overlay.classList.add('open');
+    });
+  });
+
+  document.getElementById('file-close').addEventListener('click', () => {
+    overlay.classList.remove('open');
+  });
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') overlay.classList.remove('open');
+  });
+</script>
+</body>
+</html>
